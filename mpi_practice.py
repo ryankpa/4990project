@@ -7,18 +7,18 @@ comm = MPI.COMM_WORLD
 
 rank = comm.Get_rank()
 size = comm.Get_size()  # 5
-N = 20
 # reading in graph data here
 
 start_time = time.time()
 if rank == 0:   # broadcaster
-    # G = nx.path_graph(N)
+    #G = nx.path_graph(200)
     G = nx.read_edgelist("twitter_combined.txt", create_using=nx.DiGraph)
 else:
     G = None
 G = comm.bcast(G, root=0)
 # partitioning
 all_nodes = list(G.nodes)
+N = len(all_nodes)
 nodes_subset = all_nodes[int((rank*N)/size):int(((rank+1)*N)/size)]
 print("I am processor", rank)
 lengths = []

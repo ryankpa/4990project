@@ -7,26 +7,28 @@ comm = MPI.COMM_WORLD
 
 rank = comm.Get_rank()
 size = comm.Get_size()  # 5
-N = 200
+N = 20
 # reading in graph data here
 
 start_time = time.time()
 if rank == 0:   # broadcaster
-    G = nx.path_graph(N)
+    # G = nx.path_graph(N)
+    G = nx.read_edgelist("twitter_combined.txt", create_using=nx.DiGraph)
 else:
     G = None
 G = comm.bcast(G, root=0)
-
-x = range(int((rank*N)/size), int(((rank+1)*N)/size))
+# partitioning
+all_nodes = list(G.nodes)
+nodes_subset = all_nodes[int((rank*N)/size):int(((rank+1)*N)/size)]
 print("I am processor", rank)
 lengths = []
 sums = []
 ccs = []
 
 # doing dijkstra's
-for i in x:
+for i in nodes_subset:
     # print("Source:", i)
-    for j in range(N):
+    for j in all_nodes:
         if nx.has_path(G, i, j):
             length, path = (nx.bidirectional_dijkstra(G, i, j))
             lengths.append(length)
